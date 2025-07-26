@@ -25,7 +25,10 @@ fn add_item(null_items: &mut Vec<Item>) {
     let product_name = read_input();
     let lowercase_productname = product_name.to_lowercase();
 
-    if null_items.iter().any(|s| s.name == lowercase_productname) {
+    if null_items
+        .iter()
+        .any(|s| s.name.to_lowercase() == lowercase_productname)
+    {
         println!("item already exists");
         // return null_items;
     } else {
@@ -75,13 +78,13 @@ fn view_item(some_items: &Vec<Item>) {
 }
 
 fn buy_items(added_items: &mut Vec<Item>) {
-    view_item(&added_items);
     println!("enter the item name you want to buy");
     let buying_item = read_input().trim().to_lowercase();
 
     if added_items.is_empty() {
         println!("there are no items at this moment");
     } else {
+        view_item(&added_items);
         if added_items.iter().any(|s| s.name == buying_item) {
             let flag = Status::Bought;
 
@@ -126,7 +129,7 @@ fn main() {
         } else if new_input == "remove" {
             remove_item(&mut shopping_list);
         } else {
-            println!("exit");
+            break;
         }
     }
 }
