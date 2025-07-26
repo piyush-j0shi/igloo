@@ -77,6 +77,7 @@ fn view_item(some_items: &Vec<Item>) {
     }
 }
 
+// todo : need to fix the logic, it creates duplicates
 fn buy_items(added_items: &mut Vec<Item>) {
     println!("enter the item name you want to buy");
     let buying_item = read_input().trim().to_lowercase();
