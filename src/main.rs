@@ -71,7 +71,6 @@ fn add_item(null_items: &mut Vec<Item>) {
     }
 }
 
-// todo : need to fix remove item
 fn remove_item(items_list: &mut Vec<Item>) {
     if items_list.is_empty() {
         println!("there are not items")
@@ -106,6 +105,7 @@ fn view_item(some_items: &mut Vec<Item>) {
     }
 }
 
+// todo : save this data in json as well
 fn buy_items(added_items: &mut Vec<Item>) {
     if added_items.is_empty() {
         println!("there are no items at this moment");
@@ -145,6 +145,7 @@ fn save_data(items_list: &Vec<Item>) {
     serde_json::to_writer_pretty(writer, items_list).expect("failed to write json");
 }
 
+// todo : fix reading empty file
 fn main() {
     // let mut shopping_list: Vec<Item> = Vec::new();
     // println!("there are some options in this which you can choose from, those options work as their name suggest");
