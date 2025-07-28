@@ -51,22 +51,27 @@ fn add_item(null_items: &mut Vec<Item>) {
             status: Status::NotBought,
         };
 
-        let file = OpenOptions::new()
-            .append(true)
-            .create(true)
-            .open("data.json")
-            .expect("failed to open file");
-        let mut writer = BufWriter::new(file);
-
-        serde_json::to_writer_pretty(writer, &items).expect("failed to write json");
-
         null_items.push(items);
-        println!("item added");
+
+        // let file = OpenOptions::new()
+        //     .write(true)
+        //     .truncate(true)
+        //     .create(true)
+        //     .open("data.json")
+        //     .expect("failed to open file");
+        // let writer = BufWriter::new(file);
+
+        // serde_json::to_writer_pretty(writer, null_items).expect("failed to write json");
+        // println!("item added");
+
+        save_data(null_items);
+        println!("task addde");
 
         // null_items
     }
 }
 
+// todo : need to fix remove item
 fn remove_item(items_list: &mut Vec<Item>) {
     if items_list.is_empty() {
         println!("there are not items")
@@ -80,6 +85,7 @@ fn remove_item(items_list: &mut Vec<Item>) {
             .position(|index| index.name.to_lowercase() == removed_item)
         {
             items_list.remove(index);
+            save_data(&items_list);
             println!("item removed");
         } else {
             println!("no intem found");
@@ -120,7 +126,6 @@ fn buy_items(added_items: &mut Vec<Item>) {
     }
 }
 
-// todo : fix lifetime and return types
 fn load_data() -> Vec<Item> {
     let file = File::open("data.json").expect("failed to open json");
     let reader = BufReader::new(file);
@@ -128,37 +133,53 @@ fn load_data() -> Vec<Item> {
     some_itemslist
 }
 
+fn save_data(items_list: &Vec<Item>) {
+    let file = OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .open("data.json")
+        .expect("failed to open file");
+    let writer = BufWriter::new(file);
+
+    serde_json::to_writer_pretty(writer, items_list).expect("failed to write json");
+}
+
 fn main() {
-    let mut shopping_list: Vec<Item> = Vec::new();
-    println!("there are some options in this which you can choose from, those options work as their name suggest");
+    // let mut shopping_list: Vec<Item> = Vec::new();
+    // println!("there are some options in this which you can choose from, those options work as their name suggest");
 
     let mut some_itemslist = load_data();
-    println!("some thing is : {:?}", some_itemslist);
+    // println!("some thing is : {:?}", some_itemslist);
+    if some_itemslist.is_empty() {
+        println!("file is empty");
+        return;
+    } else {
+        loop {
+            println!("\n");
+            println!("=====================================");
+            println!("add | buy | view | remove | type exit");
+            println!("=====================================");
 
-    loop {
-        println!("\n");
-        println!("=====================================");
-        println!("add | buy | view | remove | type exit");
-        println!("=====================================");
+            // println!("type anything");
+            // let input = read_input();
+            // println!("you typed : {}", input);
 
-        // println!("type anything");
-        // let input = read_input();
-        // println!("you typed : {}", input);
+            // let first_item = add_item(&mut shopping_list);
+            // println!("item is : {:?}", first_item);
 
-        // let first_item = add_item(&mut shopping_list);
-        // println!("item is : {:?}", first_item);
-
-        let new_input = read_input().trim().to_lowercase();
-        if new_input == "add" {
-            add_item(&mut shopping_list);
-        } else if new_input == "buy" {
-            buy_items(&mut some_itemslist);
-        } else if new_input == "view" {
-            view_item(&mut some_itemslist);
-        } else if new_input == "remove" {
-            remove_item(&mut some_itemslist);
-        } else {
-            break;
+            let new_input = read_input().trim().to_lowercase();
+            if new_input == "add" {
+                add_item(&mut some_itemslist);
+            } else if new_input == "buy" {
+                buy_items(&mut some_itemslist);
+            } else if new_input == "view" {
+                view_item(&mut some_itemslist);
+            } else if new_input == "remove" {
+                remove_item(&mut some_itemslist);
+            } else {
+                break;
+            }
         }
     }
     // create_file();
