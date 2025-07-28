@@ -65,7 +65,7 @@ fn add_item(null_items: &mut Vec<Item>) {
         // println!("item added");
 
         save_data(null_items);
-        println!("task addde");
+        println!("item added");
 
         // null_items
     }
@@ -92,7 +92,7 @@ fn remove_item(items_list: &mut Vec<Item>) {
     }
 }
 
-fn view_item(some_items: &mut Vec<Item>) {
+fn view_item(some_items: &Vec<Item>) {
     if some_items.is_empty() {
         println!("there are no items, add some items to view items")
     }
@@ -155,8 +155,19 @@ fn unbought_items(bought_items: &mut Vec<Item>) {
 fn load_data() -> Vec<Item> {
     let file = File::open("data.json").expect("failed to open json");
     let reader = BufReader::new(file);
-    let some_itemslist: Vec<Item> = serde_json::from_reader(reader).expect("failed to read json");
-    some_itemslist
+    match serde_json::from_reader(reader) {
+        Ok(data) => {
+            let some_itemslist: Vec<Item> = data;
+            return some_itemslist;
+        }
+
+        #[allow(unused_variables)]
+        Err(e) => {
+            let some_itemslist: Vec<Item> = Vec::new();
+            return some_itemslist;
+        }
+    }
+    // some_itemslist
 }
 
 fn save_data(items_list: &Vec<Item>) {
@@ -171,6 +182,39 @@ fn save_data(items_list: &Vec<Item>) {
     serde_json::to_writer_pretty(writer, items_list).expect("failed to write json");
 }
 
+fn execute(some_itemslist: &mut Vec<Item>) {
+    loop {
+        println!("\n");
+        println!("============================================");
+        println!("add | buy | unbuy |view | remove | type exit");
+        println!("============================================");
+
+        // println!("type anything");
+        // let input = read_input();
+        // println!("you typed : {}", input);
+
+        // let first_item = add_item(&mut shopping_list);
+        // println!("item is : {:?}", first_item);
+
+        let new_input = read_input().trim().to_lowercase();
+        if new_input == "add" {
+            add_item(some_itemslist);
+        } else if new_input == "buy" {
+            buy_items(some_itemslist);
+        } else if new_input == "view" {
+            view_item(some_itemslist);
+        } else if new_input == "remove" {
+            remove_item(some_itemslist);
+        } else if new_input == "unbuy" {
+            unbought_items(some_itemslist);
+        } else if new_input == "exit" {
+            break;
+        } else {
+            println!("invalid input");
+        }
+    }
+}
+
 // todo : fix reading empty file
 fn main() {
     // let mut shopping_list: Vec<Item> = Vec::new();
@@ -178,41 +222,15 @@ fn main() {
 
     let mut some_itemslist = load_data();
     // println!("some thing is : {:?}", some_itemslist);
+
     if some_itemslist.is_empty() {
-        println!("file is empty");
-        return;
+        println!("there are no items so initialized a new items list, add items to continue");
+        execute(&mut some_itemslist);
+    //     return;
     } else {
-        loop {
-            println!("\n");
-            println!("============================================");
-            println!("add | buy | unbuy |view | remove | type exit");
-            println!("============================================");
-
-            // println!("type anything");
-            // let input = read_input();
-            // println!("you typed : {}", input);
-
-            // let first_item = add_item(&mut shopping_list);
-            // println!("item is : {:?}", first_item);
-
-            let new_input = read_input().trim().to_lowercase();
-            if new_input == "add" {
-                add_item(&mut some_itemslist);
-            } else if new_input == "buy" {
-                buy_items(&mut some_itemslist);
-            } else if new_input == "view" {
-                view_item(&mut some_itemslist);
-            } else if new_input == "remove" {
-                remove_item(&mut some_itemslist);
-            } else if new_input == "unbuy" {
-                unbought_items(&mut some_itemslist);
-            } else if new_input == "exit" {
-                break;
-            } else {
-                println!("invalid input");
-            }
-        }
+        execute(&mut some_itemslist);
     }
+
     // create_file();
     //  let some_itemslist = load_data();
     //  println!("some thing is : {:?}", some_itemslist);
