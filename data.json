@@ -1,0 +1,14 @@
+[
+  {
+    "name": "milk",
+    "status": "NotBought"
+  },
+  {
+    "name": "not milk",
+    "status": "Bought"
+  },
+  {
+    "name": "soap",
+    "status": "NotBought"
+  }
+]

@@ -36,7 +36,7 @@ fn read_input() -> String {
 
 fn add_item(null_items: &mut Vec<Item>) {
     println!("enter the product you want to add");
-    let product_name = read_input();
+    let product_name = read_input().trim().to_string();
     let lowercase_productname = product_name.to_lowercase();
 
     if null_items
@@ -105,7 +105,6 @@ fn view_item(some_items: &mut Vec<Item>) {
     }
 }
 
-// todo : save this data in json as well
 fn buy_items(added_items: &mut Vec<Item>) {
     if added_items.is_empty() {
         println!("there are no items at this moment");
@@ -119,7 +118,34 @@ fn buy_items(added_items: &mut Vec<Item>) {
             .find(|item| item.name.to_lowercase() == buying_item)
         {
             item.status = Status::Bought;
+            save_data(&added_items);
             println!("item marked as bought");
+        } else {
+            println!("item no found");
+        }
+    }
+}
+
+fn unbought_items(bought_items: &mut Vec<Item>) {
+    if bought_items.is_empty() {
+        println!("there are not any items");
+    } else {
+        view_item(bought_items);
+        println!("enter the item name you want to buy");
+        let unbuying_item = read_input().trim().to_lowercase();
+
+        if let Some(item) = bought_items
+            .iter_mut()
+            .find(|item| item.name.to_lowercase() == unbuying_item)
+        {
+            match item.status {
+                Status::NotBought => println!("already marked as bought"),
+                Status::Bought => {
+                    item.status = Status::NotBought;
+                    save_data(bought_items);
+                    println!("marked as unbuy");
+                }
+            }
         } else {
             println!("item no found");
         }
@@ -158,9 +184,9 @@ fn main() {
     } else {
         loop {
             println!("\n");
-            println!("=====================================");
-            println!("add | buy | view | remove | type exit");
-            println!("=====================================");
+            println!("============================================");
+            println!("add | buy | unbuy |view | remove | type exit");
+            println!("============================================");
 
             // println!("type anything");
             // let input = read_input();
@@ -178,8 +204,12 @@ fn main() {
                 view_item(&mut some_itemslist);
             } else if new_input == "remove" {
                 remove_item(&mut some_itemslist);
-            } else {
+            } else if new_input == "unbuy" {
+                unbought_items(&mut some_itemslist);
+            } else if new_input == "exit" {
                 break;
+            } else {
+                println!("invalid input");
             }
         }
     }
