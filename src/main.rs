@@ -121,7 +121,7 @@ fn buy_items(added_items: &mut Vec<Item>) {
 }
 
 // todo : fix lifetime and return types
-fn load_data() -> &mut Vec<Item> {
+fn load_data() -> Vec<Item> {
     let file = File::open("data.json").expect("failed to open json");
     let reader = BufReader::new(file);
     let some_itemslist: Vec<Item> = serde_json::from_reader(reader).expect("failed to read json");
@@ -131,6 +131,9 @@ fn load_data() -> &mut Vec<Item> {
 fn main() {
     let mut shopping_list: Vec<Item> = Vec::new();
     println!("there are some options in this which you can choose from, those options work as their name suggest");
+
+    let mut some_itemslist = load_data();
+    println!("some thing is : {:?}", some_itemslist);
 
     loop {
         println!("\n");
@@ -149,16 +152,16 @@ fn main() {
         if new_input == "add" {
             add_item(&mut shopping_list);
         } else if new_input == "buy" {
-            buy_items(&mut shopping_list);
+            buy_items(&mut some_itemslist);
         } else if new_input == "view" {
-            view_item(&mut shopping_list);
+            view_item(&mut some_itemslist);
         } else if new_input == "remove" {
-            remove_item(&mut shopping_list);
+            remove_item(&mut some_itemslist);
         } else {
             break;
         }
     }
     // create_file();
-    let some_itemslist = load_data();
-    println!("some thing is : {:?}", some_itemslist);
+    //  let some_itemslist = load_data();
+    //  println!("some thing is : {:?}", some_itemslist);
 }
