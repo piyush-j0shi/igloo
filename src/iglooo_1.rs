@@ -22,6 +22,7 @@ impl Rectangle {
     }
 }
 
+// main function
 fn main() {
     let rect1 = Rectangle {
         width: 50,
