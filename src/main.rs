@@ -54,7 +54,7 @@ fn remove_item(items_list: &mut Vec<Item>) {
         let item_input = read_input();
 
         if let Ok(index) = item_input.parse::<usize>() {
-            if index > items_list.len() {
+            if index >= items_list.len() {
                 println!("invalid item no");
                 return;
             }
@@ -77,31 +77,22 @@ fn view_item(some_items: &Vec<Item>) {
     }
 }
 
-// todo : need to fix the logic, it creates duplicates
 fn buy_items(added_items: &mut Vec<Item>) {
-    println!("enter the item name you want to buy");
-    let buying_item = read_input().trim().to_lowercase();
-
     if added_items.is_empty() {
         println!("there are no items at this moment");
     } else {
         view_item(&added_items);
-        if added_items.iter().any(|s| s.name == buying_item) {
-            let flag = Status::Bought;
+        println!("enter the item index you want to buy");
+        let buying_item = read_input().trim().to_lowercase();
 
-            let bought_item = match flag {
-                Status::NotBought => Status::Bought,
-                _ => Status::NotBought,
-            };
+        if let Ok(index) = buying_item.parse::<usize>() {
+            if index >= added_items.len() {
+                println!("Invalid task number.");
+                return;
+            }
 
-            let bought_item_struct = Item {
-                name: buying_item,
-                status: bought_item,
-            };
-
-            added_items.push(bought_item_struct);
-        } else {
-            println!("no item found")
+            added_items[index].status = Status::Bought;
+            println!("marked as bought");
         }
     }
 }
