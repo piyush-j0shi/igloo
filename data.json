@@ -1,0 +1,11 @@
+[
+  {
+    "name": "milk",
+    "status": "NotBought"
+  },
+  {
+    "name": "not milk",
+    "status": "NotBought"
+  }
+]
+

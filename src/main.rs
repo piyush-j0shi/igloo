@@ -1,12 +1,16 @@
-use std::io;
+use serde::{Deserialize, Serialize};
+use std::fs::{File, OpenOptions};
 
-#[derive(Debug)]
+// need to import `Write` here to use create_file() function
+use std::io::{self, BufReader, BufWriter};
+
+#[derive(Debug, Serialize, Deserialize)]
 enum Status {
     Bought,
     NotBought,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Item {
     name: String,
     status: Status,
@@ -19,6 +23,16 @@ fn read_input() -> String {
         .expect("failed to read line");
     user_input.trim().to_string()
 }
+
+// fn create_file() {
+//     let file = OpenOptions::new()
+//         .append(true)
+//         .create(true)
+//         .open("data.json")
+//         .expect("failed to open file");
+//     let mut writer = BufWriter::new(file);
+//     writeln!(writer, "{{\"message\": \"Hello\"}}").unwrap();
+// }
 
 fn add_item(null_items: &mut Vec<Item>) {
     println!("enter the product you want to add");
@@ -37,6 +51,15 @@ fn add_item(null_items: &mut Vec<Item>) {
             status: Status::NotBought,
         };
 
+        let file = OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open("data.json")
+            .expect("failed to open file");
+        let mut writer = BufWriter::new(file);
+
+        serde_json::to_writer_pretty(writer, &items).expect("failed to write json");
+
         null_items.push(items);
         println!("item added");
 
@@ -48,7 +71,7 @@ fn remove_item(items_list: &mut Vec<Item>) {
     if items_list.is_empty() {
         println!("there are not items")
     } else {
-        view_item(&items_list);
+        view_item(items_list);
         println!("enter the item name you want to remove");
         let removed_item = read_input();
 
@@ -64,7 +87,7 @@ fn remove_item(items_list: &mut Vec<Item>) {
     }
 }
 
-fn view_item(some_items: &Vec<Item>) {
+fn view_item(some_items: &mut Vec<Item>) {
     if some_items.is_empty() {
         println!("there are no items, add some items to view items")
     }
@@ -81,7 +104,7 @@ fn buy_items(added_items: &mut Vec<Item>) {
     if added_items.is_empty() {
         println!("there are no items at this moment");
     } else {
-        view_item(&added_items);
+        view_item(added_items);
         println!("enter the item name you want to buy");
         let buying_item = read_input().trim().to_lowercase();
 
@@ -97,12 +120,23 @@ fn buy_items(added_items: &mut Vec<Item>) {
     }
 }
 
+// todo : fix lifetime and return types
+fn load_data() -> &mut Vec<Item> {
+    let file = File::open("data.json").expect("failed to open json");
+    let reader = BufReader::new(file);
+    let some_itemslist: Vec<Item> = serde_json::from_reader(reader).expect("failed to read json");
+    some_itemslist
+}
+
 fn main() {
     let mut shopping_list: Vec<Item> = Vec::new();
+    println!("there are some options in this which you can choose from, those options work as their name suggest");
 
     loop {
         println!("\n");
-        println!("type add to add new items | type buy to but items | type view to view items | type remove to remove an item |press any key to exit and view items");
+        println!("=====================================");
+        println!("add | buy | view | remove | type exit");
+        println!("=====================================");
 
         // println!("type anything");
         // let input = read_input();
@@ -117,11 +151,14 @@ fn main() {
         } else if new_input == "buy" {
             buy_items(&mut shopping_list);
         } else if new_input == "view" {
-            view_item(&shopping_list);
+            view_item(&mut shopping_list);
         } else if new_input == "remove" {
             remove_item(&mut shopping_list);
         } else {
             break;
         }
     }
+    // create_file();
+    let some_itemslist = load_data();
+    println!("some thing is : {:?}", some_itemslist);
 }
