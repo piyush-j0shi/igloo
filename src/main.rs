@@ -49,17 +49,17 @@ fn remove_item(items_list: &mut Vec<Item>) {
         println!("there are not items")
     } else {
         view_item(&items_list);
+        println!("enter the item name you want to remove");
+        let removed_item = read_input();
 
-        println!("enter the item no you want to delete");
-        let item_input = read_input();
-
-        if let Ok(index) = item_input.parse::<usize>() {
-            if index >= items_list.len() {
-                println!("invalid item no");
-                return;
-            }
+        if let Some(index) = items_list
+            .iter()
+            .position(|index| index.name.to_lowercase() == removed_item)
+        {
             items_list.remove(index);
-            println!("item deleted.");
+            println!("item removed");
+        } else {
+            println!("no intem found");
         }
     }
 }
@@ -82,17 +82,17 @@ fn buy_items(added_items: &mut Vec<Item>) {
         println!("there are no items at this moment");
     } else {
         view_item(&added_items);
-        println!("enter the item index you want to buy");
+        println!("enter the item name you want to buy");
         let buying_item = read_input().trim().to_lowercase();
 
-        if let Ok(index) = buying_item.parse::<usize>() {
-            if index >= added_items.len() {
-                println!("Invalid task number.");
-                return;
-            }
-
-            added_items[index].status = Status::Bought;
-            println!("marked as bought");
+        if let Some(item) = added_items
+            .iter_mut()
+            .find(|item| item.name.to_lowercase() == buying_item)
+        {
+            item.status = Status::Bought;
+            println!("item marked as bought");
+        } else {
+            println!("item no found");
         }
     }
 }
