@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
+use std::collections::HashMap;
 use std::io;
 use std::sync::atomic::{AtomicUsize, Ordering};
-
 static COUNTER: AtomicUsize = AtomicUsize::new(1);
 
 fn get_sequential_id() -> usize {
@@ -64,7 +64,6 @@ impl Account {
         }
     }
 
-    // todo : need to fix transcation: Vec<Transactionrecords> for withdraw
     fn withdraw(&mut self, amount: usize) {
         if amount > self.balance {
             println!("not sufficient fund");
@@ -120,19 +119,45 @@ impl Account {
             other_account.balance += amount;
 
             let self_account = Transactionrecords {
-                transactiontype: Transaction::Withdraw,
+                transactiontype: Transaction::Transfer,
                 amount: amount,
                 timestamp: Utc::now(),
             };
 
             let other_account_state = Transactionrecords {
-                transactiontype: Transaction::Deposite,
+                transactiontype: Transaction::Transfer,
                 amount: amount,
                 timestamp: Utc::now(),
             };
 
             self.transcation.push(self_account);
             other_account.transcation.push(other_account_state);
+        }
+    }
+
+    fn accont_transfer(account_1: &mut Account, amount: usize, account_2: &mut Account) {
+        if amount <= 0 {
+            println!("value needs to be grater than 0");
+        } else if amount > account_1.balance {
+            println!("insufficient f0und");
+        } else {
+            account_1.balance -= amount;
+            account_2.balance += amount;
+
+            let account_1_record = Transactionrecords {
+                transactiontype: Transaction::Transfer,
+                amount: amount,
+                timestamp: Utc::now(),
+            };
+
+            let account_2_record = Transactionrecords {
+                transactiontype: Transaction::Transfer,
+                amount: amount,
+                timestamp: Utc::now(),
+            };
+
+            account_1.transcation.push(account_1_record);
+            account_2.transcation.push(account_2_record);
         }
     }
 }
@@ -160,8 +185,8 @@ fn execute() {
     user_1.get_details();
 
     loop {
-        println!("=====================================================================================================================");
-        println!("select an operation : get : getdetails | draw :withdraw  | site : deposite | exit : exit loop | self : self transferr");
+        println!("=================================================================================================================================================================");
+        println!("select an operation : get : getdetails | draw :withdraw  | site : deposite | exit : exit loop | self : self transferr | transfer : Transfer one to another account");
         let operation_input = read_input().trim().to_lowercase();
 
         if operation_input == "draw" {
@@ -183,12 +208,19 @@ fn execute() {
         } else if operation_input == "self" {
             user.self_transfer(100, &mut user_1);
             user.get_details();
+        } else if operation_input == "transfer" {
+            println!("Enter transfer amount:");
+            let transfer_amount: usize = read_input().parse().expect("failed to read number");
+            Account::accont_transfer(&mut user, transfer_amount, &mut user_1);
+            user.get_details();
+            user_1.get_details();
         }
     }
 
     user_1.get_details();
 }
 
+// todo : multiple users using Hashmap (But I am not in moode now)
 fn main() {
     execute();
 }
