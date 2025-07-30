@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::value::Serializer;
-use std::fs::{File, OpenOptions};
-use std::io::{self, BufRead, BufWriter};
+use std::fs::{read, File, OpenOptions};
+use std::io::{self, BufRead, BufReader, BufWriter};
 
 #[derive(Debug, Serialize, Deserialize)]
 enum Availablity {
@@ -56,6 +56,7 @@ impl Library {
             .find(|s| s.title.to_lowercase() == book_name.trim().to_lowercase())
         {
             book.availablable = Availablity::NotAvailable;
+            save_data(&self);
             println!("{} checked out", book_name);
         } else {
             println!("book does not exists");
@@ -75,6 +76,7 @@ impl Library {
                 Availablity::Available => println!("enter the correct book name"),
                 Availablity::NotAvailable => book.availablable = Availablity::Available,
             }
+            save_data(&self);
         } else {
             println!("book does not exist");
         }
@@ -133,39 +135,55 @@ fn save_data(library: &Library) {
     serde_json::to_writer_pretty(writer, library).expect("failed to write");
 }
 
+fn load_data() -> Library {
+    let file = File::open("data1.json").expect("failed to open file");
+    let reader = BufReader::new(file);
+
+    match serde_json::from_reader(reader) {
+        Ok(data) => {
+            let mut library = data;
+            return library;
+        }
+
+        Err(e) => {
+            let mut library = Library {
+                books: vec![
+                    Book {
+                        title: "The Rust Programming Language".to_string(),
+                        author: "Steve Klabnik & Carol Nichols".to_string(),
+                        isbn: "978-1-59327-828-1".to_string(),
+                        availablable: Availablity::Available,
+                    },
+                    Book {
+                        title: "Clean Code".to_string(),
+                        author: "Robert C. Martin".to_string(),
+                        isbn: "978-0-13-235088-4".to_string(),
+                        availablable: Availablity::NotAvailable,
+                    },
+                    Book {
+                        title: "The Pragmatic Programmer".to_string(),
+                        author: "Andrew Hunt & David Thomas".to_string(),
+                        isbn: "978-0-13-595705-9".to_string(),
+                        availablable: Availablity::Available,
+                    },
+                    Book {
+                        title: "Introduction to Algorithms".to_string(),
+                        author: "Thomas H. Cormen".to_string(),
+                        isbn: "978-0-262-03384-8".to_string(),
+                        availablable: Availablity::Available,
+                    },
+                ],
+            };
+            return library;
+        }
+    }
+}
+
 fn execute() {
     println!("there are few options");
     println!("===========================================================================================================================");
 
-    let mut library = Library {
-        books: vec![
-            Book {
-                title: "The Rust Programming Language".to_string(),
-                author: "Steve Klabnik & Carol Nichols".to_string(),
-                isbn: "978-1-59327-828-1".to_string(),
-                availablable: Availablity::Available,
-            },
-            Book {
-                title: "Clean Code".to_string(),
-                author: "Robert C. Martin".to_string(),
-                isbn: "978-0-13-235088-4".to_string(),
-                availablable: Availablity::NotAvailable,
-            },
-            Book {
-                title: "The Pragmatic Programmer".to_string(),
-                author: "Andrew Hunt & David Thomas".to_string(),
-                isbn: "978-0-13-595705-9".to_string(),
-                availablable: Availablity::Available,
-            },
-            Book {
-                title: "Introduction to Algorithms".to_string(),
-                author: "Thomas H. Cormen".to_string(),
-                isbn: "978-0-262-03384-8".to_string(),
-                availablable: Availablity::Available,
-            },
-        ],
-    };
-
+    let mut library = load_data();
     loop {
         // let mut library = Library { books: Vec::new() };
         println!("add : add_book | check : check_out | return : return_book | auth : search_by_author | title : search_by_title | exit : exit");

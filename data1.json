@@ -28,6 +28,12 @@
       "title": "the book",
       "author": "unknown",
       "isbn": "1234567890123456",
+      "availablable": "NotAvailable"
+    },
+    {
+      "title": "the not book",
+      "author": "unknown",
+      "isbn": "1234567890123456",
       "availablable": "Available"
     }
   ]
