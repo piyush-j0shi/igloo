@@ -1,12 +1,15 @@
-use std::io;
+use serde::{Deserialize, Serialize};
+use serde_json::value::Serializer;
+use std::fs::{File, OpenOptions};
+use std::io::{self, BufRead, BufWriter};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 enum Availablity {
     Available,
     NotAvailable,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Book {
     title: String,
     author: String,
@@ -32,7 +35,7 @@ impl Book {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Library {
     books: Vec<Book>,
 }
@@ -40,6 +43,7 @@ struct Library {
 impl Library {
     fn add_book(&mut self, book: Book) {
         self.books.push(book);
+        save_data(self);
     }
 
     fn check_out(&mut self) {
@@ -116,6 +120,17 @@ fn read_input() -> String {
         .read_line(&mut input)
         .expect("failed to read lines");
     input.trim().to_string()
+}
+
+fn save_data(library: &Library) {
+    let file = OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .open("data1.json")
+        .expect("failed to open");
+    let writer = BufWriter::new(file);
+    serde_json::to_writer_pretty(writer, library).expect("failed to write");
 }
 
 fn execute() {
