@@ -1,0 +1,90 @@
+use std::io;
+
+#[derive(Debug)]
+enum Availablity {
+    Available,
+    NotAvailable,
+}
+
+#[derive(Debug)]
+struct Book {
+    title: String,
+    author: String,
+    isbn: String,
+    availablable: Availablity,
+}
+
+impl Book {
+    fn new(book_title: String, book_author: String, book_isbn: String) -> Self {
+        Self {
+            title: book_title,
+            author: book_author,
+            isbn: book_isbn,
+            availablable: Availablity::Available,
+        }
+    }
+
+    fn details(&self) {
+        println!("book title : {:?}", self.title);
+        println!("book author : {:?}", self.author);
+        println!("book isbn : {:?}", self.isbn);
+        println!("is available : {:?}", self.availablable);
+    }
+}
+
+#[derive(Debug)]
+struct Library {
+    books: Vec<Book>,
+}
+
+impl Library {
+    fn add_book(&mut self, book: Book) {
+        self.books.push(book);
+    }
+
+    fn check_out(&mut self) {
+        println!("enter the book you want to check out");
+        let book_name = read_input();
+
+        if let Some(book) = self
+            .books
+            .iter()
+            .any(|s| s.title == book_name.trim().to_lowercase())
+        {
+            match book.available {
+                Availablity::Available => book.available = Availablity::NotAvailable,
+                Availablity::NotAvailable => println!("book is not available right now."),
+            };
+        } else {
+            println!("book does not exists");
+        }
+    }
+}
+
+fn read_input() -> String {
+    let mut input = String::new();
+    io::stdin()
+        .read_line(&mut input)
+        .expect("failed to read lines");
+    input.trim().to_string()
+}
+
+fn main() {
+    println!("type something");
+    let some_input = read_input();
+    println!("typed : {}", some_input);
+
+    let book = Book::new(
+        String::from("the book"),
+        String::from("unknown"),
+        String::from("1234567890123456"),
+    );
+
+    book.details();
+
+    let mut library = Library { books: Vec::new() };
+    library.add_book(book);
+    println!("first books is : {:?}", library);
+
+    library.check_out();
+}
