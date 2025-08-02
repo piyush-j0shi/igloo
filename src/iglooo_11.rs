@@ -115,7 +115,7 @@ fn print_summary(stats: &LogStats) {
 }
 
 fn main() {
-    let log_file = "server.log"; // Ensure this file exists in the same directory
+    let log_file = "server.log";
     let stats = process_log_file(log_file);
     print_summary(&stats);
 }
