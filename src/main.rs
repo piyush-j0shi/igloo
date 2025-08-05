@@ -95,6 +95,29 @@ impl StudentDatabase {
             println!("student does not exists");
         }
     }
+
+    fn calculate_all_grades(&self) {
+        for every_student in &self.students {
+            // println!("every students : {:#?}", every_student.0);
+            for every_subject in &every_student.1.subjects {
+                // println!("every subjects are : {:#?}", every_subject);
+                // println!("grades : {:?}", every_subject.1.grades);
+                let mut total_sum = 0.0;
+                for sum in &every_subject.1.grades {
+                    total_sum += sum;
+                }
+                let length = every_subject.1.grades.len() as f64;
+                // println!("total_sum : {}", total_sum);
+                println!(
+                    "name : {} | subject : {} | percentage : {}",
+                    every_student.0,
+                    every_subject.0,
+                    total_sum / length
+                );
+                println!("======================================================");
+            }
+        }
+    }
 }
 fn read_input() -> String {
     let mut input = String::new();
@@ -163,23 +186,60 @@ fn get_grades() -> Vec<f64> {
     return grades;
 }
 
+// fn main() {
+//     let mut studentdb = StudentDatabase::new();
+//
+//     println!("enter student name");
+//     let student_name = read_input();
+//
+//     println!("enter the subject name");
+//     let subject_name = read_input();
+//
+//     //  studentdb.add_student("student1");
+//     //  studentdb.add_student("student2");
+//
+//     let grades = get_grades();
+//     let subject = get_details(grades);
+//     studentdb.add_student(student_name.as_str(), subject_name.as_str(), subject);
+//
+//     // println!("new student : {:#?}", studentdb);
+//
+//     studentdb.calculate_grade(student_name.as_str(), subject_name.as_str());
+//     studentdb.calculate_all_grades();
+// }
+
 fn main() {
     let mut studentdb = StudentDatabase::new();
 
-    println!("enter student name");
-    let student_name = read_input();
+    let alice_math = Subject {
+        grades: vec![85.0, 92.0, 78.0, 88.0],
+        weight: 1.0,
+        grading_scale: GradingScale::Percentage,
+    };
 
-    println!("enter the subject name");
-    let subject_name = read_input();
+    let alice_english = Subject {
+        grades: vec![91.0, 87.0, 94.0, 89.0],
+        weight: 1.0,
+        grading_scale: GradingScale::LetterGrade,
+    };
 
-    //  studentdb.add_student("student1");
-    //  studentdb.add_student("student2");
+    let alice_science = Subject {
+        grades: vec![78.0, 82.0, 85.0, 80.0],
+        weight: 1.5,
+        grading_scale: GradingScale::Percentage,
+    };
 
-    let grades = get_grades();
-    let subject = get_details(grades);
-    studentdb.add_student(student_name.as_str(), subject_name.as_str(), subject);
+    studentdb.add_student("Alice", "Math", alice_math);
+    studentdb.add_student("Alice", "English", alice_english);
+    studentdb.add_student("Alice", "Science", alice_science);
 
-    // println!("new student : {:#?}", studentdb);
+    // println!("student db : {:#?}", studentdb);
 
-    studentdb.calculate_grade(student_name.as_str(), subject_name.as_str());
+    studentdb.calculate_grade("Alice", "Math");
+    studentdb.calculate_grade("Alice", "English");
+
+    println!("======================================================");
+    println!("\n");
+
+    studentdb.calculate_all_grades();
 }
