@@ -1,4 +1,5 @@
-use std::{collections::HashMap, hash::Hash, ops::Sub};
+use std::collections::HashMap;
+use std::io;
 
 #[derive(Debug)]
 enum GradingScale {
@@ -32,15 +33,15 @@ impl StudentDatabase {
         }
     }
 
-    fn add_student(&mut self, name: &str) {
-        let english = Subject {
-            grades: vec![89.0, 92.0, 39.0, 42.0],
-            weight: 1.0,
-            grading_scale: GradingScale::Percentage,
-        };
+    fn add_student(&mut self, name: &str, subject_name: &str, subject: Subject) {
+        //  let english = Subject {
+        //      grades: vec![89.0, 92.0, 39.0, 42.0],
+        //      weight: 1.0,
+        //      grading_scale: GradingScale::Percentage,
+        //  };
 
         let mut subject_map: HashMap<String, Subject> = HashMap::new();
-        subject_map.insert("english".to_string(), english);
+        subject_map.insert(subject_name.to_string(), subject);
 
         let student = Student {
             name: name.to_string(),
@@ -53,7 +54,7 @@ impl StudentDatabase {
     fn calculate_grade(&mut self, student_name: &str, subject_name: &str) {
         if let Some(student_details) = self.students.get(&student_name.to_string()) {
             if let Some(subject) = student_details.subjects.get(&subject_name.to_string()) {
-                println!("student_details : {:?}", subject);
+                // println!("student_details : {:?}", subject);
 
                 let mut total_marks = 0.0;
                 let total = subject.grades.len() as f64;
@@ -89,14 +90,89 @@ impl StudentDatabase {
         }
     }
 }
+fn read_input() -> String {
+    let mut input = String::new();
+    io::stdin()
+        .read_line(&mut input)
+        .expect("error reading input");
+    input.trim().to_string()
+}
+
+fn read_marks() -> f64 {
+    let mut input = String::new();
+    io::stdin()
+        .read_line(&mut input)
+        .expect("error reading input");
+    let float64: f64 = input.trim().parse().unwrap();
+    float64
+}
+
+fn get_details(grades: Vec<f64>) -> Subject {
+    println!("enter method : grade or %");
+    let method = read_input();
+
+    if method.trim().to_lowercase() == "grade" {
+        let subject = Subject {
+            grades: grades,
+            weight: 1.0,
+            grading_scale: GradingScale::LetterGrade,
+        };
+        return subject;
+    } else if method.trim().to_lowercase() == "%" {
+        let subject = Subject {
+            grades: grades,
+            weight: 2.0,
+            grading_scale: GradingScale::Percentage,
+        };
+        return subject;
+    } else {
+        println!("invalid choice, default is percentage");
+        let subject = Subject {
+            grades: grades,
+            weight: 2.0,
+            grading_scale: GradingScale::Percentage,
+        };
+        return subject;
+    }
+}
+
+fn get_grades() -> Vec<f64> {
+    println!("enter the no of grades");
+    let no_of_grades = read_marks() as i32;
+
+    let mut grades: Vec<f64> = Vec::new();
+    for i in 0..no_of_grades {
+        println!("enter the {}'st grade : ", i + 1);
+        let marks = read_marks();
+
+        if marks > 0.0 {
+            grades.push(marks);
+        } else {
+            println!("marks can not be negative");
+            grades.push(0.0);
+        }
+    }
+    // println!("grades : {:?}", grades);
+    return grades;
+}
 
 fn main() {
     let mut studentdb = StudentDatabase::new();
-    studentdb.add_student("student1");
-    studentdb.add_student("student2");
-    studentdb.add_student("student3");
 
-    println!("new student : {:#?}", studentdb);
+    println!("enter student name");
+    let student_name = read_input();
+
+    println!("enter the subject name");
+    let subject_name = read_input();
+
+    //  studentdb.add_student("student1");
+    //  studentdb.add_student("student2");
+
+    let grades = get_grades();
+    let subject = get_details(grades);
+    studentdb.add_student(student_name.as_str(), subject_name.as_str(), subject);
+
+    // println!("new student : {:#?}", studentdb);
 
     studentdb.calculate_grade("student1", "english");
 }
