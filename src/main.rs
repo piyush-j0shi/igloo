@@ -40,15 +40,18 @@ impl StudentDatabase {
         //      grading_scale: GradingScale::Percentage,
         //  };
 
-        let mut subject_map: HashMap<String, Subject> = HashMap::new();
-        subject_map.insert(subject_name.to_string(), subject);
+        if let Some(previous_student) = self.students.get(subject_name) {
+        } else {
+            let mut subject_map: HashMap<String, Subject> = HashMap::new();
+            subject_map.insert(subject_name.to_string(), subject);
 
-        let student = Student {
-            name: name.to_string(),
-            subjects: subject_map,
-        };
+            let student = Student {
+                name: name.to_string(),
+                subjects: subject_map,
+            };
 
-        self.students.insert(name.to_string(), student);
+            self.students.insert(name.to_string(), student);
+        }
     }
 
     fn calculate_grade(&mut self, student_name: &str, subject_name: &str) {
@@ -148,8 +151,9 @@ fn get_grades() -> Vec<f64> {
         if marks > 0.0 {
             grades.push(marks);
         } else {
-            println!("marks can not be negative");
-            grades.push(0.0);
+            println!("marks can not be negative, enter again");
+            let reenter_marks = read_marks();
+            grades.push(reenter_marks);
         }
     }
     // println!("grades : {:?}", grades);
@@ -174,5 +178,5 @@ fn main() {
 
     // println!("new student : {:#?}", studentdb);
 
-    studentdb.calculate_grade("student1", "english");
+    studentdb.calculate_grade(student_name.as_str(), subject_name.as_str());
 }
