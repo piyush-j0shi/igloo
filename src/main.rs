@@ -40,7 +40,10 @@ impl StudentDatabase {
         //      grading_scale: GradingScale::Percentage,
         //  };
 
-        if let Some(previous_student) = self.students.get(subject_name) {
+        if let Some(previous_student) = self.students.get_mut(name) {
+            previous_student
+                .subjects
+                .insert(subject_name.to_string(), subject);
         } else {
             let mut subject_map: HashMap<String, Subject> = HashMap::new();
             subject_map.insert(subject_name.to_string(), subject);
