@@ -53,7 +53,7 @@ impl StudentDatabase {
     fn calculate_grade(&mut self, student_name: &str, subject_name: &str) {
         if let Some(student_details) = self.students.get(&student_name.to_string()) {
             if let Some(subject) = student_details.subjects.get(&subject_name.to_string()) {
-                println!("student_details : {:?}", subject.grades);
+                println!("student_details : {:?}", subject);
 
                 let mut total_marks = 0.0;
                 let total = subject.grades.len() as f64;
@@ -61,7 +61,26 @@ impl StudentDatabase {
                 for marks in &subject.grades {
                     total_marks += marks;
                 }
-                println!("average is : {}", total_marks / total);
+                let average = total_marks / total;
+
+                match subject.grading_scale {
+                    GradingScale::Percentage => println!("percentage : {}", average),
+                    GradingScale::LetterGrade => {
+                        if average >= 90.0 && average <= 100.0 {
+                            println!("Grade : A");
+                        } else if average < 90.0 && average >= 80.0 {
+                            println!("Grade : B");
+                        } else if average < 80.0 && average >= 70.0 {
+                            println!("Grade : C");
+                        } else if average < 70.0 && average >= 60.0 {
+                            println!("Grade : D");
+                        } else if average < 60.0 && average >= 40.0 {
+                            println!("Grade : E");
+                        } else {
+                            println!("fail");
+                        }
+                    }
+                }
             } else {
                 println!("nothing found");
             }
