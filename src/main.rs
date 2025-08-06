@@ -135,6 +135,27 @@ impl InventorySystem {
             // println!("stock : {:?}", products.stock);
         }
     }
+
+    fn getcategory_report(&self, category_id: &str) {
+        if let Some(already_product) = self.categories.get(&category_id.to_string()) {
+            // println!("product ids are : {:#?}", already_product.product_ids);
+
+            for ids in &already_product.product_ids {
+                // println!("ids are : {}", ids);
+                if let Some(with_productid) = self.products.get(ids) {
+                    println!("product name : {}", with_productid.name);
+                    println!("product stock : {}", with_productid.stock);
+                    println!("product price : {:?}", with_productid.price_history);
+
+                    println!("======================================");
+                } else {
+                    println!("i don't know man");
+                }
+            }
+        } else {
+            println!("no product found with this category");
+        }
+    }
 }
 
 fn main() {
@@ -186,4 +207,6 @@ fn main() {
     inventorydb.update_price("product1", 64.0);
 
     inventorydb.getlowstock_report(57);
+
+    inventorydb.getcategory_report("category1");
 }
