@@ -122,17 +122,17 @@ impl InventorySystem {
     }
 
     fn getlowstock_report(&self, threshold: u32) {
-        let all_products: &Vec<&Product> = &self.products.values().collect();
-        println!("products : {:#?}", all_products);
+        // let all_products: &Vec<&Product> = &self.products.values().collect();
+        // println!("products : {:#?}", all_products);
 
-        for products in all_products {
+        for products in self.products.values() {
             if products.stock < threshold {
                 println!("product name: {}", products.name);
                 println!("product stock : {}", products.stock);
 
                 println!("======================================");
             }
-            // println!("stock : {:?}", products.stock);
+            println!("stock : {:?}", products.stock);
         }
     }
 
@@ -158,10 +158,10 @@ impl InventorySystem {
     }
 
     fn getsupplier_product(&self, supplier_id: &str) {
-        let all_products: &Vec<&Product> = &self.products.values().collect();
+        // let all_products: &Vec<&Product> = &self.products.values().collect();
 
-        for products in all_products {
-            if products.supplier_id == supplier_id.trim().to_lowercase().to_string() {
+        for products in self.products.values() {
+            if products.supplier_id == supplier_id.trim().to_string() {
                 println!("product name : {}", products.name);
             }
         }
