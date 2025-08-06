@@ -93,6 +93,33 @@ impl InventorySystem {
             println!("supplier id does not exists");
         }
     }
+
+    fn update_stock(&mut self, product_id: &str, new_stock: u32) {
+        if let Some(previous_product) = self.products.get_mut(&product_id.to_string()) {
+            // println!("product found : {:#?}", previous_product);
+
+            previous_product.stock = new_stock;
+
+            println!("stock updates");
+            println!("updated product : {:#?}", previous_product);
+        } else {
+            println!("no product found");
+        }
+    }
+
+    fn update_price(&mut self, product_id: &str, new_price: f64) {
+        if let Some(already_product) = self.products.get_mut(&product_id.to_string()) {
+            already_product.price_history.push(new_price);
+
+            println!("price updated");
+            println!("updated product : {:#?}", already_product);
+
+            println!(
+                "latest price is : {:?}",
+                already_product.price_history.last()
+            );
+        }
+    }
 }
 
 fn main() {
@@ -116,6 +143,8 @@ fn main() {
         45.0,
     );
     println!("inventory products : {:#?}", inventorydb.products);
-
     println!("inventory categories : {:#?}", inventorydb.categories);
+
+    inventorydb.update_stock("product1", 32);
+    inventorydb.update_price("product1", 64.0);
 }
