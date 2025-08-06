@@ -156,6 +156,16 @@ impl InventorySystem {
             println!("no product found with this category");
         }
     }
+
+    fn getsupplier_product(&self, supplier_id: &str) {
+        let all_products: &Vec<&Product> = &self.products.values().collect();
+
+        for products in all_products {
+            if products.supplier_id == supplier_id.trim().to_lowercase().to_string() {
+                println!("product name : {}", products.name);
+            }
+        }
+    }
 }
 
 fn main() {
@@ -186,7 +196,7 @@ fn main() {
         "product2",
         "second product",
         "category1",
-        "supplier2",
+        "supplier1",
         56,
         42.0,
     );
@@ -205,8 +215,7 @@ fn main() {
 
     inventorydb.update_stock("product1", 32);
     inventorydb.update_price("product1", 64.0);
-
     inventorydb.getlowstock_report(57);
-
     inventorydb.getcategory_report("category1");
+    inventorydb.getsupplier_product("supplier1");
 }
