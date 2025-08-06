@@ -120,6 +120,21 @@ impl InventorySystem {
             );
         }
     }
+
+    fn getlowstock_report(&self, threshold: u32) {
+        let all_products: &Vec<&Product> = &self.products.values().collect();
+        println!("products : {:#?}", all_products);
+
+        for products in all_products {
+            if products.stock < threshold {
+                println!("product name: {}", products.name);
+                println!("product stock : {}", products.stock);
+
+                println!("======================================");
+            }
+            // println!("stock : {:?}", products.stock);
+        }
+    }
 }
 
 fn main() {
@@ -132,6 +147,9 @@ fn main() {
     println!("inevntory categories : {:#?}", inventorydb.categories);
 
     inventorydb.add_supplier("supplier1", "first_supplier", "supplier1@supplier.com");
+    inventorydb.add_supplier("supplier2", "second_supplier", "supplier2@supplier.com");
+    inventorydb.add_supplier("supplier3", "third_supplier", "supplier3@supplier.com");
+
     println!("inventory suppliers : {:#?}", inventorydb.suppliers);
 
     inventorydb.add_product(
@@ -139,12 +157,33 @@ fn main() {
         "first product",
         "category1",
         "supplier1",
-        3,
+        32,
         45.0,
     );
+
+    inventorydb.add_product(
+        "product2",
+        "second product",
+        "category1",
+        "supplier2",
+        56,
+        42.0,
+    );
+
+    inventorydb.add_product(
+        "product3",
+        "third product",
+        "category2",
+        "supplier3",
+        60,
+        97.0,
+    );
+
     println!("inventory products : {:#?}", inventorydb.products);
     println!("inventory categories : {:#?}", inventorydb.categories);
 
     inventorydb.update_stock("product1", 32);
     inventorydb.update_price("product1", 64.0);
+
+    inventorydb.getlowstock_report(57);
 }
