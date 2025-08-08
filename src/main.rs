@@ -117,6 +117,10 @@ fn parsed_post(text: &str) -> ParsedPost {
     }
 }
 
+// todo : add regex for better pattern handling
+// todo : unicode handling in hashtags and mentions
+// todo : add function for finding trending topics
+
 fn main() {
     let extracted_hashtags =
         extract_hashtags("@user said check out #coolstuff at www.example.com! Love it 😍 #awesome");
