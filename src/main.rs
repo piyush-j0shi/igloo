@@ -171,11 +171,51 @@ impl RecipeBook {
             println!("all recipes are : {:#?}", ingredientsvec);
         }
     }
+
+    fn add_substitution(&mut self, original: String, alternative: Ingredient) {
+        if let Some(sub) = self
+            .substitutions
+            .iter_mut()
+            .find(|s| s.original == original)
+        {
+            sub.alternatives.push(alternative);
+        } else {
+            self.substitutions.push(Substitution {
+                original,
+                alternatives: vec![alternative],
+            });
+        }
+    }
+
+    fn find_substitution(&self, original: &str) -> Option<&Substitution> {
+        self.substitutions.iter().find(|s| s.original == original)
+    }
 }
 
 #[derive(Debug)]
 struct MealPlan {
     days: HashMap<String, Vec<Recipe>>,
+}
+
+impl MealPlan {
+    fn add_recipe_to_day(&mut self, day: String, recipe: Recipe) {
+        self.days.entry(day).or_default().push(recipe);
+    }
+
+    fn remove_recipe_from_day(&mut self, day: &str, recipe_name: &str) {
+        if let Some(recipes) = self.days.get_mut(day) {
+            recipes.retain(|r| r.name != recipe_name);
+        }
+    }
+
+    fn view_plan(&self) {
+        for (day, recipes) in &self.days {
+            println!("{}:", day);
+            for recipe in recipes {
+                println!("  - {}", recipe.name);
+            }
+        }
+    }
 }
 
 fn main() {
