@@ -116,8 +116,18 @@ struct MealPlan {
     days: HashMap<String, Vec<Recipe>>,
 }
 
+fn scale_recipe(recipe: &mut Recipe, target_serving: u32) {
+    let scale_factor = target_serving / recipe.servings;
+
+    for ingredients in &mut recipe.ingredient {
+        println!("ingredients are : {:#?}", ingredients);
+        let updated_quantity = ingredients.quantity * scale_factor as f64;
+        ingredients.quantity = updated_quantity;
+    }
+}
+
 fn main() {
-    let spaghetti_recipe = Recipe {
+    let mut spaghetti_recipe = Recipe {
         name: String::from("Spaghetti with Tomato Sauce"),
         ingredient: vec![
             Ingredient {
@@ -181,6 +191,9 @@ fn main() {
         tags: vec![DietaryTag::Vegetarian],
     };
 
+    scale_recipe(&mut spaghetti_recipe, 8);
+    println!("update recipe is : {:#?}", spaghetti_recipe);
+
     let mut recipe_book = RecipeBook::new();
 
     recipe_book.add_recipe(spaghetti_recipe);
@@ -191,7 +204,6 @@ fn main() {
     recipe_book.findrecipe_byname("Spaghetti with Tomato Sauce");
     recipe_book.findby_ingredient("Sugar");
     recipe_book.findrecipe_bydietary(DietaryTag::Vegetarian);
-
     recipe_book.remove_recipe("Spaghetti with Tomato Sauce");
     // println!("new updated recipe_book : {:#?}", recipe_book);
 }
