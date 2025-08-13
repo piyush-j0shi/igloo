@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 enum Unit {
     Gram,
     Kilogram,
@@ -24,6 +24,16 @@ struct Ingredient {
     dietary_tag: DietaryTag,
 }
 
+impl Recipe {
+    fn scale(&mut self, target_serving: u32) {
+        let scale_factor = target_serving as f64 / self.servings as f64;
+        for ingredient in &mut self.ingredient {
+            ingredient.quantity *= scale_factor;
+        }
+        self.servings = target_serving;
+    }
+}
+
 #[derive(Debug)]
 struct Recipe {
     name: String,
@@ -31,6 +41,58 @@ struct Recipe {
     instructions: Vec<String>,
     servings: u32,
     tags: Vec<DietaryTag>,
+}
+
+impl Ingredient {
+    fn convert_unit(self, new_unit: Unit) -> Ingredient {
+        match new_unit {
+            Unit::Gram => {
+                if self.unit == Unit::Kilogram {
+                    Ingredient {
+                        quantity: self.quantity * 1000.0,
+                        unit: new_unit,
+                        ..self
+                    }
+                } else {
+                    self
+                }
+            }
+            Unit::Kilogram => {
+                if self.unit == Unit::Gram {
+                    Ingredient {
+                        quantity: self.quantity / 1000.0,
+                        unit: new_unit,
+                        ..self
+                    }
+                } else {
+                    self
+                }
+            }
+            Unit::Milimiter => {
+                if self.unit == Unit::Liter {
+                    Ingredient {
+                        quantity: self.quantity * 1000.0,
+                        unit: new_unit,
+                        ..self
+                    }
+                } else {
+                    self
+                }
+            }
+            Unit::Liter => {
+                if self.unit == Unit::Milimiter {
+                    Ingredient {
+                        quantity: self.quantity / 1000.0,
+                        unit: new_unit,
+                        ..self
+                    }
+                } else {
+                    self
+                }
+            }
+            _ => self,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -116,16 +178,6 @@ struct MealPlan {
     days: HashMap<String, Vec<Recipe>>,
 }
 
-fn scale_recipe(recipe: &mut Recipe, target_serving: u32) {
-    let scale_factor = target_serving / recipe.servings;
-
-    for ingredients in &mut recipe.ingredient {
-        println!("ingredients are : {:#?}", ingredients);
-        let updated_quantity = ingredients.quantity * scale_factor as f64;
-        ingredients.quantity = updated_quantity;
-    }
-}
-
 fn main() {
     let mut spaghetti_recipe = Recipe {
         name: String::from("Spaghetti with Tomato Sauce"),
@@ -191,8 +243,21 @@ fn main() {
         tags: vec![DietaryTag::Vegetarian],
     };
 
-    scale_recipe(&mut spaghetti_recipe, 8);
+    let ingredient = Ingredient {
+        name: String::from("Spaghetti"),
+        quantity: 400.0,
+        unit: Unit::Gram,
+        dietary_tag: DietaryTag::Vegetarian,
+    };
+
+    println!("ingredient before : {:#?}", ingredient);
+    let new_ingredient = ingredient.convert_unit(Unit::Kilogram);
+    println!("ingredient after : {:#?}", new_ingredient);
+    println!("=========================================================================");
+
+    spaghetti_recipe.scale(8);
     println!("update recipe is : {:#?}", spaghetti_recipe);
+    println!("==========================================================================");
 
     let mut recipe_book = RecipeBook::new();
 
@@ -202,8 +267,15 @@ fn main() {
     // println!("new updates recipe_book : {:#?}", recipe_book);
 
     recipe_book.findrecipe_byname("Spaghetti with Tomato Sauce");
+    println!("==========================================================================");
+
     recipe_book.findby_ingredient("Sugar");
+    println!("==========================================================================");
+
     recipe_book.findrecipe_bydietary(DietaryTag::Vegetarian);
+    println!("==========================================================================");
+
     recipe_book.remove_recipe("Spaghetti with Tomato Sauce");
+
     // println!("new updated recipe_book : {:#?}", recipe_book);
 }
