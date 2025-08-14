@@ -1,5 +1,4 @@
 use ::std::collections::HashMap;
-use std::thread::scope;
 
 #[derive(Debug)]
 enum TournamentFormat {
