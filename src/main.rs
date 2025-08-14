@@ -115,26 +115,9 @@ impl Tournament {
             }
         }
 
-        let players_12 = (self.players[0].id, self.players[1].id);
-        let players_23 = (self.players[2].id, self.players[3].id);
-
-        let match_1 = Match {
-            match_id: 1,
-            players: players_12,
-            scores: (0, 0),
-            state: MatchState::Scheduled,
-        };
-
-        let match_2 = Match {
-            match_id: 2,
-            players: players_23,
-            scores: (0, 0),
-            state: MatchState::Scheduled,
-        };
-
         let round_1 = Round {
             round_number: 1,
-            matches: vec![match_1, match_2],
+            matches: matches,
         };
 
         self.rounds = vec![round_1];
