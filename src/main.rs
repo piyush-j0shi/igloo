@@ -1,4 +1,5 @@
 use ::std::collections::HashMap;
+use std::thread::scope;
 
 #[derive(Debug)]
 enum TournamentFormat {
@@ -60,36 +61,22 @@ struct Tournament {
 
 impl Tournament {
     fn new(name: &str, tournament_format: TournamentFormat, total_players: Vec<Player>) -> Self {
-        let stat_player1 = PlayerStats {
-            wins: 0,
-            losses: 0,
-            points_scored: 0,
-        };
-
-        let stat_player2 = PlayerStats {
-            wins: 0,
-            losses: 0,
-            points_scored: 0,
-        };
-
-        let stat_player3 = PlayerStats {
-            wins: 0,
-            losses: 0,
-            points_scored: 0,
-        };
-
-        let stat_player4 = PlayerStats {
-            wins: 0,
-            losses: 0,
-            points_scored: 0,
-        };
-
         let mut stats_map = HashMap::new();
 
-        stats_map.insert(total_players[0].id, stat_player1);
-        stats_map.insert(total_players[1].id, stat_player2);
-        stats_map.insert(total_players[2].id, stat_player3);
-        stats_map.insert(total_players[3].id, stat_player4);
+        for players in &total_players {
+            let stat_player1 = PlayerStats {
+                wins: 0,
+                losses: 0,
+                points_scored: 0,
+            };
+
+            stats_map.insert(players.id, stat_player1);
+        }
+
+        // stats_map.insert(total_players[0].id, stat_player1);
+        // stats_map.insert(total_players[1].id, stat_player2);
+        // stats_map.insert(total_players[2].id, stat_player3);
+        // stats_map.insert(total_players[3].id, stat_player4);
 
         Self {
             id: 1,
@@ -107,6 +94,26 @@ impl Tournament {
             TournamentState::NotStarted => self.state = TournamentState::InProgress,
             TournamentState::Completed => println!("tournament already completed"),
             TournamentState::InProgress => println!("tournament already in progress"),
+        }
+
+        let mut matches: Vec<Match> = vec![];
+        let mut match_id = 1;
+
+        for i in (0..self.players.len()).step_by(2) {
+            if i + 1 < self.players.len() {
+                let p1_id = self.players[i].id;
+                let p2_id = self.players[i + 1].id;
+
+                matches.push(Match {
+                    match_id,
+                    players: (p1_id, p2_id),
+                    scores: (0, 0),
+                    state: MatchState::Scheduled,
+                });
+                match_id += 1;
+            } else {
+                println!("player {} gets bye", self.players[i].id);
+            }
         }
 
         let players_12 = (self.players[0].id, self.players[1].id);
@@ -127,7 +134,7 @@ impl Tournament {
         };
 
         let round_1 = Round {
-            round_number: 0,
+            round_number: 1,
             matches: vec![match_1, match_2],
         };
 
