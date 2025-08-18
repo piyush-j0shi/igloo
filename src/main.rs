@@ -13,7 +13,7 @@ enum TournamentState {
     Completed,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 enum MatchState {
     Scheduled,
     ongoing,
@@ -164,7 +164,76 @@ impl Tournament {
         }
     }
 
-    fn next_round() {}
+    fn next_round(&mut self) {
+        if let Some(last_round) = self.rounds.last() {
+            if !last_round
+                .matches
+                .iter()
+                .all(|m| m.state == MatchState::Completed)
+            {
+                println!("Not all matches are completed yet!");
+                return;
+            }
+        } else {
+            println!("No rounds yet, start the tournament first!");
+            return;
+        }
+
+        let last_round = self.rounds.last().unwrap();
+
+        let mut winners: Vec<u32> = vec![];
+        for m in &last_round.matches {
+            let (p1, p2) = m.players;
+            let (s1, s2) = m.scores;
+
+            if s1 > s2 {
+                winners.push(p1);
+            } else {
+                winners.push(p2);
+            }
+        }
+
+        if winners.len() == 1 {
+            println!("Tournament Winner is player {}", winners[0]);
+            self.state = TournamentState::Completed;
+            return;
+        }
+
+        let mut matches: Vec<Match> = vec![];
+        let mut match_id = self.rounds.iter().map(|r| r.matches.len()).sum::<usize>() as u32 + 1;
+
+        let mut i = 0;
+        while i < winners.len() {
+            if i + 1 < winners.len() {
+                matches.push(Match {
+                    match_id,
+                    players: (winners[i], winners[i + 1]),
+                    scores: (0, 0),
+                    state: MatchState::Scheduled,
+                });
+                match_id += 1;
+                i += 2;
+            } else {
+                println!("Player {} gets a bye and advances!", winners[i]);
+                matches.push(Match {
+                    match_id,
+                    players: (winners[i], winners[i]),
+                    scores: (1, 0),
+                    state: MatchState::Completed,
+                });
+                match_id += 1;
+                i += 1;
+            }
+        }
+
+        let round_num = (self.rounds.len() + 1) as u32;
+        let new_round = Round {
+            round_number: round_num,
+            matches,
+        };
+
+        self.rounds.push(new_round);
+    }
 }
 
 fn main() {
@@ -200,4 +269,6 @@ fn main() {
     new_tournament.match_result(1, 10, 20);
     new_tournament.match_result(2, 10, 20);
     println!("after result match : {:#?}", new_tournament);
+
+    new_tournament.next_round();
 }
