@@ -122,6 +122,32 @@ impl Tournament {
 
         self.rounds = vec![round_1];
     }
+
+    fn match_result(&mut self, match_id: u32, scores1: u32, score2: u32) {
+        for rounds in &mut self.rounds {
+            if let Some(matches) = rounds.matches.iter_mut().find(|x| x.match_id == match_id) {
+                matches.scores.0 = scores1;
+                matches.scores.1 = score2;
+                matches.state = MatchState::Completed;
+
+                println!("match is : {:#?}", matches);
+
+                if scores1 > score2 {
+                    if let Some(playerstate) = self.stats.get_mut(&matches.players.0) {
+                        playerstate.wins += 1;
+                        playerstate.losses += 0;
+                        playerstate.points_scored += scores1;
+                    }
+                } else {
+                    if let Some(playerstate) = self.stats.get_mut(&matches.players.1) {
+                        playerstate.wins += 1;
+                        playerstate.losses += 0;
+                        playerstate.points_scored += score2;
+                    }
+                }
+            }
+        }
+    }
 }
 
 fn main() {
@@ -153,4 +179,7 @@ fn main() {
     println!("tournament information : {:#?}", new_tournament);
     new_tournament.start();
     println!("tournament information : {:#?}", new_tournament);
+
+    new_tournament.match_result(1, 10, 20);
+    println!("after result match : {:#?}", new_tournament);
 }
