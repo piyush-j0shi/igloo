@@ -132,22 +132,39 @@ impl Tournament {
 
                 println!("match is : {:#?}", matches);
 
+                let player1 = matches.players.0;
+                let player2 = matches.players.1;
+
                 if scores1 > score2 {
-                    if let Some(playerstate) = self.stats.get_mut(&matches.players.0) {
+                    if let Some(playerstate) = self.stats.get_mut(&player1) {
                         playerstate.wins += 1;
                         playerstate.losses += 0;
                         playerstate.points_scored += scores1;
                     }
+
+                    if let Some(playerstate2) = self.stats.get_mut(&player2) {
+                        playerstate2.wins += 0;
+                        playerstate2.losses += 1;
+                        playerstate2.points_scored += score2;
+                    }
                 } else {
-                    if let Some(playerstate) = self.stats.get_mut(&matches.players.1) {
+                    if let Some(playerstate) = self.stats.get_mut(&player2) {
                         playerstate.wins += 1;
                         playerstate.losses += 0;
                         playerstate.points_scored += score2;
+                    }
+
+                    if let Some(playerstate2) = self.stats.get_mut(&player1) {
+                        playerstate2.wins += 0;
+                        playerstate2.losses += 1;
+                        playerstate2.points_scored += scores1;
                     }
                 }
             }
         }
     }
+
+    fn next_round() {}
 }
 
 fn main() {
@@ -181,5 +198,6 @@ fn main() {
     println!("tournament information : {:#?}", new_tournament);
 
     new_tournament.match_result(1, 10, 20);
+    new_tournament.match_result(2, 10, 20);
     println!("after result match : {:#?}", new_tournament);
 }
