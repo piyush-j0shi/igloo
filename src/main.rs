@@ -68,9 +68,25 @@ impl Connection {
         }
     }
 
-    fn update(&mut self) -> Self {
+    fn update(&mut self, packet: &Packet) -> Self {
         self.packet_count += 1;
-        return self;
+        self.bytes_transferred += packet.payload.len() as u64;
+
+        let protocol_1 = match packet.packet_type {
+            PacketType::TCP { scr_port, dst_port } => "TCP".to_string(),
+            PacketType::UDP { scr_port, dst_port } => "UDP".to_string(),
+            PacketType::Unknown => "Unknown".to_string(),
+        };
+
+        Connection {
+            src_ip: packet.src_ip.clone(),
+            dst_ip: packet.dst_ip.clone(),
+            src_port: 80,
+            dst_port: 8080,
+            protocol: protocol_1,
+            packet_count: 0,
+            bytes_transferred: 0,
+        }
     }
 }
 
