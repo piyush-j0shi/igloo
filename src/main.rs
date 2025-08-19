@@ -51,36 +51,36 @@ struct Connection {
 
 impl Connection {
     fn new(packet: &Packet) -> Self {
-        let protocol_1 = match packet.packet_type {
-            PacketType::TCP { scr_port, dst_port } => "TCP".to_string(),
-            PacketType::UDP { scr_port, dst_port } => "UDP".to_string(),
-            PacketType::Unknown => "Unknown".to_string(),
+        let result = match packet.packet_type {
+            PacketType::TCP { scr_port, dst_port } => ("TCP".to_string(), (scr_port, dst_port)),
+            PacketType::UDP { scr_port, dst_port } => ("UDP".to_string(), (scr_port, dst_port)),
+            PacketType::Unknown => ("Unknown".to_string(), (0, 0)),
         };
 
         Connection {
             src_ip: packet.src_ip.clone(),
             dst_ip: packet.dst_ip.clone(),
-            src_port: 80,
-            dst_port: 8080,
-            protocol: protocol_1,
+            src_port: result.1 .0,
+            dst_port: result.1 .1,
+            protocol: result.0,
             packet_count: 0,
             bytes_transferred: 0,
         }
     }
 
     fn update(&mut self, packet: &Packet) -> Self {
-        let protocol_1 = match packet.packet_type {
-            PacketType::TCP { scr_port, dst_port } => "TCP".to_string(),
-            PacketType::UDP { scr_port, dst_port } => "UDP".to_string(),
-            PacketType::Unknown => "Unknown".to_string(),
+        let result = match packet.packet_type {
+            PacketType::TCP { scr_port, dst_port } => ("TCP".to_string(), (scr_port, dst_port)),
+            PacketType::UDP { scr_port, dst_port } => ("UDP".to_string(), (scr_port, dst_port)),
+            PacketType::Unknown => ("Unknown".to_string(), (0, 0)),
         };
 
         Connection {
             src_ip: packet.src_ip.clone(),
             dst_ip: packet.dst_ip.clone(),
-            src_port: 80,
-            dst_port: 8080,
-            protocol: protocol_1,
+            src_port: result.1 .0,
+            dst_port: result.1 .1,
+            protocol: result.0,
             packet_count: self.packet_count + 1,
             bytes_transferred: self.bytes_transferred + packet.payload.len() as u64,
         }
@@ -95,18 +95,22 @@ struct AnalyzeState {
 
 impl AnalyzeState {
     fn add_or_update_connection(&mut self, connection: &mut Connection, packet: &Packet) {
-        let the_key = format!(
-            "{}{}-{:?}",
-            packet.src_ip, packet.dst_ip, packet.packet_type
-        );
+        if !packet.is_suspicious() == true {
+            let the_key = format!(
+                "{}{}-{:?}",
+                packet.src_ip, packet.dst_ip, packet.packet_type
+            );
 
-        if self.connections.contains_key(&the_key) {
-            self.connections
-                .insert(the_key, Connection::update(connection, packet));
-            println!("updated connection is : {:#?}", self.connections);
+            if self.connections.contains_key(&the_key) {
+                self.connections
+                    .insert(the_key, Connection::update(connection, packet));
+                println!("updated connection is : {:#?}", self.connections);
+            } else {
+                self.connections.insert(the_key, Connection::new(packet));
+                println!("new connection is : {:#?}", self.connections);
+            }
         } else {
-            self.connections.insert(the_key, Connection::new(packet));
-            println!("new connection is : {:#?}", self.connections);
+            println!("suspecious packet recieved");
         }
     }
 }
@@ -117,7 +121,7 @@ fn main() {
         dst_ip: "0.0.0.0".to_string(),
         packet_type: PacketType::TCP {
             scr_port: 80,
-            dst_port: 8080,
+            dst_port: 3000,
         },
         payload: vec![10, 20, 20],
     };
