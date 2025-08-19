@@ -68,6 +68,7 @@ impl Connection {
         }
     }
 
+    // modify inplace instaed of rebuilding
     fn update(&self, packet: &Packet) -> Self {
         Connection {
             src_ip: self.src_ip.clone(),
