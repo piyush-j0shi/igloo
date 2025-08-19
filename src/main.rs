@@ -69,9 +69,6 @@ impl Connection {
     }
 
     fn update(&mut self, packet: &Packet) -> Self {
-        self.packet_count += 1;
-        self.bytes_transferred += packet.payload.len() as u64;
-
         let protocol_1 = match packet.packet_type {
             PacketType::TCP { scr_port, dst_port } => "TCP".to_string(),
             PacketType::UDP { scr_port, dst_port } => "UDP".to_string(),
@@ -84,8 +81,8 @@ impl Connection {
             src_port: 80,
             dst_port: 8080,
             protocol: protocol_1,
-            packet_count: 0,
-            bytes_transferred: 0,
+            packet_count: self.packet_count + 1,
+            bytes_transferred: self.bytes_transferred + packet.payload.len() as u64,
         }
     }
 }
@@ -97,17 +94,19 @@ struct AnalyzeState {
 }
 
 impl AnalyzeState {
-    fn add_or_update_connection(&mut self, packet: &Packet) {
+    fn add_or_update_connection(&mut self, connection: &mut Connection, packet: &Packet) {
         let the_key = format!(
             "{}{}-{:?}",
             packet.src_ip, packet.dst_ip, packet.packet_type
         );
 
         if self.connections.contains_key(&the_key) {
-            self.connections[the_key] = Connection::update();
+            self.connections
+                .insert(the_key, Connection::update(connection, packet));
+            println!("updated connection is : {:#?}", self.connections);
         } else {
             self.connections.insert(the_key, Connection::new(packet));
-            println!("updated connection is : {:#?}", self.connections);
+            println!("new connection is : {:#?}", self.connections);
         }
     }
 }
@@ -123,7 +122,7 @@ fn main() {
         payload: vec![10, 20, 20],
     };
 
-    let connections = Connection {
+    let mut connections = Connection {
         src_ip: "127.0.0.1".to_string(),
         dst_ip: "192.168.0.10".to_string(),
         src_port: 50000,
@@ -141,6 +140,6 @@ fn main() {
         connections: HashMap::new(),
         events: vec![],
     };
-    analyzestate.add_or_update_connection(&packet);
-    analyzestate.add_or_update_connection(&packet);
+    analyzestate.add_or_update_connection(&mut connections, &packet);
+    analyzestate.add_or_update_connection(&mut connections, &packet);
 }
