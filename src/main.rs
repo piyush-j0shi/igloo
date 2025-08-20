@@ -68,17 +68,9 @@ impl Connection {
         }
     }
 
-    // modify inplace instaed of rebuilding
-    fn update(&self, packet: &Packet) -> Self {
-        Connection {
-            src_ip: self.src_ip.clone(),
-            dst_ip: self.dst_ip.clone(),
-            src_port: self.src_port,
-            dst_port: self.dst_port,
-            protocol: self.protocol.clone(),
-            packet_count: self.packet_count + 1,
-            bytes_transferred: self.bytes_transferred + packet.payload.len() as u64,
-        }
+    fn update(&mut self, packet: &Packet) {
+        self.packet_count += 1;
+        self.bytes_transferred += packet.payload.len() as u64;
     }
 }
 
@@ -96,9 +88,8 @@ impl AnalyzeState {
         );
 
         if !packet.is_suspicious() == true {
-            if let Some(got_connection) = &self.connections.get(&the_key) {
-                self.connections
-                    .insert(the_key, Connection::update(&got_connection, packet));
+            if let Some(got_connection) = self.connections.get_mut(&the_key) {
+                got_connection.update(packet);
                 println!("updated connection is : {:#?}", self.connections);
             } else {
                 self.connections.insert(the_key, Connection::new(packet));
