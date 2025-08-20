@@ -8,14 +8,14 @@ enum PacketType {
 }
 
 #[derive(Debug)]
-struct Packet {
-    src_ip: String,
-    dst_ip: String,
+struct Packet<'a> {
+    src_ip: &'a str,
+    dst_ip: &'a str,
     packet_type: PacketType,
     payload: Vec<u8>,
 }
 
-impl Packet {
+impl<'a> Packet<'a> {
     fn summary(&self) {
         println!("source ip : {}", self.src_ip);
         println!("destination ip : {}", self.dst_ip);
@@ -27,13 +27,25 @@ impl Packet {
         println!("size of payload : {}", self.payload.len());
     }
 
-    fn is_suspicious(&self) -> bool {
+    fn is_suspicious(&self) -> (bool, &str) {
         if self.payload.is_empty() {
-            return true;
+            return (true, "palyload empty");
         } else if self.payload.len() > 10000 {
-            return true;
+            return (true, "oversized payload");
         } else {
-            return false;
+            match std::str::from_utf8(&self.payload) {
+                Ok(s) => {
+                    if s.contains("attack") || s.contains("malware") || s.contains("malicious") {
+                        return (true, "conatins suspicous words");
+                    } else {
+                        return (false, "correct thing");
+                    }
+                }
+                Err(e) => {
+                    println!("something went wrong : {}", e);
+                    return (true, "Something went wrong so marking it true");
+                }
+            }
         }
     }
 }
@@ -58,8 +70,8 @@ impl Connection {
         };
 
         Connection {
-            src_ip: packet.src_ip.clone(),
-            dst_ip: packet.dst_ip.clone(),
+            src_ip: packet.src_ip.to_string(),
+            dst_ip: packet.dst_ip.to_string(),
             src_port: result.1 .0,
             dst_port: result.1 .1,
             protocol: result.0,
@@ -87,49 +99,71 @@ impl AnalyzeState {
             packet.src_ip, packet.dst_ip, packet.packet_type
         );
 
-        if !packet.is_suspicious() == true {
+        let suspeciousness = packet.is_suspicious();
+
+        if suspeciousness.0 == false {
             if let Some(got_connection) = self.connections.get_mut(&the_key) {
                 got_connection.update(packet);
                 println!("updated connection is : {:#?}", self.connections);
             } else {
-                self.connections.insert(the_key, Connection::new(packet));
+                let mut conn = Connection::new(packet);
+                conn.update(packet);
+                self.connections.insert(the_key, conn);
                 println!("new connection is : {:#?}", self.connections);
             }
+        } else if suspeciousness.0 == true {
+            let shit = format!(
+                "Is suspecious : {} | Reason : {:?}",
+                suspeciousness.0, suspeciousness.1
+            );
+            self.events.push(shit);
+            println!("suiiiiii : {:#?}", self.events);
         } else {
-            self.events.push(the_key);
+            println!("man we are working something went wrong, we also don't know.");
         }
     }
 }
 
 fn main() {
-    let packet = Packet {
-        src_ip: "127.0.0.1".to_string(),
-        dst_ip: "0.0.0.0".to_string(),
-        packet_type: PacketType::TCP {
-            scr_port: 80,
-            dst_port: 3000,
-        },
-        payload: vec![10, 20, 20],
-    };
-
-    let connections = Connection {
-        src_ip: "127.0.0.1".to_string(),
-        dst_ip: "192.168.0.10".to_string(),
-        src_port: 50000,
-        dst_port: 80,
-        protocol: "TCP".to_string(),
-        packet_count: 12,
-        bytes_transferred: 8421,
-    };
-
-    packet.summary();
-    let suspicion = packet.is_suspicious();
-    println!("Is Suspecied : {}", suspicion);
-
     let mut analyzestate = AnalyzeState {
         connections: HashMap::new(),
         events: vec![],
     };
-    analyzestate.add_or_update_connection(&packet);
-    analyzestate.add_or_update_connection(&packet);
+
+    let packets = vec![
+        Packet {
+            src_ip: "127.0.0.1",
+            dst_ip: "192.168.0.10",
+            packet_type: PacketType::TCP {
+                scr_port: 50000,
+                dst_port: 80,
+            },
+            payload: b"hello world".to_vec(),
+        },
+        Packet {
+            src_ip: "192.168.0.5",
+            dst_ip: "10.0.0.1",
+            packet_type: PacketType::UDP {
+                scr_port: 1234,
+                dst_port: 53,
+            },
+            payload: b"normal dns request".to_vec(),
+        },
+        Packet {
+            src_ip: "10.0.0.2",
+            dst_ip: "10.0.0.3",
+            packet_type: PacketType::TCP {
+                scr_port: 4444,
+                dst_port: 22,
+            },
+            payload: b"attack detected!".to_vec(),
+        },
+    ];
+
+    for packet in packets {
+        packet.summary();
+        analyzestate.add_or_update_connection(&packet);
+    }
+
+    println!("Final Analyzer State: {:#?}", analyzestate);
 }
