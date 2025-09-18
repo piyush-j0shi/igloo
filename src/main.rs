@@ -5,11 +5,11 @@ enum ShirtColor {
 }
 
 struct Inventory {
-    shirts : Vec<ShirtColor>,
+    shirts: Vec<ShirtColor>,
 }
 
 impl Inventory {
-    fn giveaway(&self, user_prefrence : Option<ShirtColor>) -> ShirtColor {
+    fn giveaway(&self, user_prefrence: Option<ShirtColor>) -> ShirtColor {
         user_prefrence.unwrap_or_else(|| self.most_stocked())
     }
 
@@ -33,7 +33,7 @@ impl Inventory {
 
 fn main() {
     let store = Inventory {
-        shirts : vec![ShirtColor::Red, ShirtColor::Blue, ShirtColor::Red],
+        shirts: vec![ShirtColor::Red, ShirtColor::Blue, ShirtColor::Red],
     };
 
     let user_pref1 = Some(ShirtColor::Red);
@@ -51,4 +51,12 @@ fn main() {
         "the user with prefrence {:?} gets {:?}",
         user_pref2, giveaway2
     );
+
+    let mut list = vec![1, 2, 3];
+    println!("before defining closure : {list:?}");
+
+    let mut mutable_borrows = || list.push(7);
+
+    mutable_borrows();
+    println!("after calling closure : {list:?}");
 }
