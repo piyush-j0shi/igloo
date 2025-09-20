@@ -1,62 +1,25 @@
-#[derive(Debug, PartialEq, Copy, Clone)]
-enum ShirtColor {
-    Red,
-    Blue,
+#[derive(Debug)]
+struct Point<T, U> {
+    x: T,
+    y: U,
 }
 
-struct Inventory {
-    shirts: Vec<ShirtColor>,
-}
-
-impl Inventory {
-    fn giveaway(&self, user_prefrence: Option<ShirtColor>) -> ShirtColor {
-        user_prefrence.unwrap_or_else(|| self.most_stocked())
-    }
-
-    fn most_stocked(&self) -> ShirtColor {
-        let mut num_red = 0;
-        let mut num_blue = 0;
-
-        for color in &self.shirts {
-            match color {
-                ShirtColor::Red => num_red += 1,
-                ShirtColor::Blue => num_blue += 1,
-            }
-        }
-        if num_red > num_blue {
-            ShirtColor::Red
-        } else {
-            ShirtColor::Blue
+impl<T, U> Point<T, U> {
+    fn swap(self) -> Point<U, T> {
+        Point {
+            x: self.y,
+            y: self.x,
         }
     }
 }
 
 fn main() {
-    let store = Inventory {
-        shirts: vec![ShirtColor::Red, ShirtColor::Blue, ShirtColor::Red],
+    let point = Point {
+        x: "x".to_string(),
+        y: 32,
     };
+    println!("before swap : {:?}", point);
 
-    let user_pref1 = Some(ShirtColor::Red);
-    let giveaway1 = store.giveaway(user_pref1);
-
-    println!(
-        "The user with prefrence {:?} gets {:?}",
-        user_pref1, giveaway1
-    );
-
-    let user_pref2 = None;
-    let giveaway2 = store.giveaway(user_pref2);
-
-    println!(
-        "the user with prefrence {:?} gets {:?}",
-        user_pref2, giveaway2
-    );
-
-    let mut list = vec![1, 2, 3];
-    println!("before defining closure : {list:?}");
-
-    let mut mutable_borrows = || list.push(7);
-
-    mutable_borrows();
-    println!("after calling closure : {list:?}");
+    let swappoed_point = point.swap();
+    println!("after swap : {:?}", swappoed_point);
 }
