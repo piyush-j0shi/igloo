@@ -1,25 +1,59 @@
-#[derive(Debug)]
-struct Point<T, U> {
-    x: T,
-    y: U,
+trait Summarize {
+    fn summarize(&self) -> String;
 }
 
-impl<T, U> Point<T, U> {
-    fn swap(self) -> Point<U, T> {
-        Point {
-            x: self.y,
-            y: self.x,
-        }
+#[derive(Debug)]
+struct Book {
+    author: String,
+    title: String,
+    publicationdate: String,
+}
+
+#[derive(Debug)]
+struct Movie {
+    name: String,
+    productionhouse: String,
+    releasedate: String,
+}
+
+impl Summarize for Book {
+    fn summarize(&self) -> String {
+        format!(
+            "{} by {} on {}",
+            self.title, self.author, self.publicationdate
+        )
     }
 }
 
-fn main() {
-    let point = Point {
-        x: "x".to_string(),
-        y: 32,
-    };
-    println!("before swap : {:?}", point);
+impl Summarize for Movie {
+    fn summarize(&self) -> String {
+        format!(
+            "{} by {} on {}",
+            self.name, self.productionhouse, self.releasedate
+        )
+    }
+}
 
-    let swappoed_point = point.swap();
-    println!("after swap : {:?}", swappoed_point);
+fn print_summary<T: Summarize>(value: T) -> String {
+    value.summarize()
+}
+
+fn main() {
+    let book = Book {
+        author: "bookauthor".to_string(),
+        title: "booktitle".to_string(),
+        publicationdate: "bookpublicationdate".to_string(),
+    };
+
+    let movie = Movie {
+        name: "moviename".to_string(),
+        productionhouse: "movieproductionhouse".to_string(),
+        releasedate: "moviereleaseddate".to_string(),
+    };
+
+    println!("{}", book.summarize());
+    println!("{}", movie.summarize());
+
+    let book_details = print_summary(book);
+    println!("{}", book_details);
 }
