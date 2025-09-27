@@ -1,12 +1,19 @@
-fn longest_string<'a>(str1: &'a str, str2: &'a str) -> &'a str {
-    if str1.len() > str2.len() {
-        str1
-    } else {
-        str2
+#[derive(Debug)]
+struct Excerpt<'a> {
+    data: &'a str,
+}
+
+impl<'a> Excerpt<'a> {
+    fn return_first_word(&self) -> &'a str {
+        let words: Vec<&str> = self.data.split_whitespace().collect();
+        words[0]
     }
 }
 
 fn main() {
-    let result = longest_string("thisislongeststring", "that");
-    println!("result : {result}");
+    let our_struct = Excerpt {
+        data: "this is a string",
+    };
+    let first_word = our_struct.return_first_word();
+    println!("first word is : {first_word}");
 }
