@@ -1,19 +1,19 @@
-#[derive(Debug)]
-struct Excerpt<'a> {
-    data: &'a str,
-}
+use std::fmt::Display;
 
-impl<'a> Excerpt<'a> {
-    fn return_first_word(&self) -> &'a str {
-        let words: Vec<&str> = self.data.split_whitespace().collect();
-        words[0]
+fn longest_with_announcement<'a, T: Display>(str1: &'a str, str2: &'a str, ann: T) -> &'a str {
+    println!("ann is : {ann}");
+    if str1.len() > str2.len() {
+        str1
+    } else {
+        str2
     }
 }
 
 fn main() {
-    let our_struct = Excerpt {
-        data: "this is a string",
-    };
-    let first_word = our_struct.return_first_word();
-    println!("first word is : {first_word}");
+    let longest = longest_with_announcement(
+        "this is an announcement with longest",
+        "short announcement",
+        3,
+    );
+    println!("longest is : {longest}");
 }
