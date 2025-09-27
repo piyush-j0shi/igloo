@@ -1,74 +1,63 @@
-use std::f64::consts::PI;
-
-trait Draw {
-    fn draw(&self) -> String;
+trait LibrarySystem {
+    fn title(&self) -> &str;
+    fn info(&self) -> String;
 }
 
-trait Area {
-    fn area(&self) -> f64;
+struct Book<'a> {
+    title: &'a str,
+    author: &'a str,
 }
 
-#[derive(Debug)]
-struct Circle {
-    radius: f64,
+struct DVD<'a> {
+    title: &'a str,
+    director: &'a str,
 }
 
-#[derive(Debug)]
-struct Square {
-    parametre: f64,
-}
+impl<'a> LibrarySystem for Book<'a> {
+    fn title(&self) -> &str {
+        self.title
+    }
 
-impl Draw for Square {
-    fn draw(&self) -> String {
-        format!(
-            "{}",
-            r#"+----+
-|    |
-+----+"#
-        )
+    fn info(&self) -> String {
+        self.author.to_string()
     }
 }
 
-impl Draw for Circle {
-    fn draw(&self) -> String {
-        format!(
-            "{}",
-            r#" /\
-/  \
-\  /
- \/"#
-        )
+impl<'a> LibrarySystem for DVD<'a> {
+    fn title(&self) -> &str {
+        self.title
+    }
+
+    fn info(&self) -> String {
+        self.director.to_string()
     }
 }
 
-impl Area for Circle {
-    fn area(&self) -> f64 {
-        PI * self.radius * self.radius
-    }
-}
+fn itearte_over<T: LibrarySystem>(value: T) {
+    let title = value.title();
+    let info = value.info();
 
-impl Area for Square {
-    fn area(&self) -> f64 {
-        self.parametre * self.parametre
-    }
-}
-
-fn lets_see<T>(value: T)
-where
-    T: Draw + Area,
-{
-    let ascii_drawing = value.draw();
-    let area_calculate = value.area();
-
-    println!("ascii drawing is ");
-    println!("{ascii_drawing}");
-    println!("area is : {area_calculate}");
+    println!("title : {title}");
+    println!("info is : {info}");
 }
 
 fn main() {
-    let circle = Circle { radius: 10.0 };
-    lets_see(circle);
+    let book1 = Book {
+        title: "book1",
+        author: "author1",
+    };
+    let book2 = Book {
+        title: "book2",
+        author: "author2",
+    };
+    let book3 = Book {
+        title: "book3",
+        author: "author3",
+    };
 
-    let square = Square { parametre: 10.0 };
-    lets_see(square);
+    let collect = vec![book1, book2, book3];
+
+    for values in collect {
+        itearte_over(values);
+    }
 }
